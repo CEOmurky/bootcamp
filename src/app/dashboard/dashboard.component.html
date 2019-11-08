@@ -1,0 +1,25 @@
+<div class="container">
+	<div class="side">
+		<div class="filter-container">
+			<div>
+				<edm-datetime-picker direction="top" [(ngModel)]="from"></edm-datetime-picker>
+				~
+				<edm-datetime-picker direction="top" [(ngModel)]="to"></edm-datetime-picker>
+			</div>
+			<div class="query-container">
+				<mat-form-field>
+					<textarea matInput placeholder="쿼리" [(ngModel)]="query"></textarea>
+				</mat-form-field>
+				<button mat-raised-button color="primary" (click)="onSearch()">
+					검색
+				</button>
+			</div>
+		</div>
+	</div>
+	<div class="grid-container">
+		<edm-grid [gridData]="gridData" [pageSize]="100" [currentPage]="1" [totalItems]="count"></edm-grid>
+	</div>
+	<div class="chart-container">
+		<edm-chart #chart (chartRendered)="onRender()"></edm-chart>
+	</div>
+</div>
