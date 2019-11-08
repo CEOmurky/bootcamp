@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, NgZone } from '@angular/core';
 import {
   BarChartConfigs,
   Chart,
@@ -32,7 +32,7 @@ export class DashboardComponent implements OnInit {
   chart: Chart;
   isChartRender = false;
 
-  constructor(private queryService: QueryService) {
+  constructor(private queryService: QueryService, private ngZone: NgZone) {
     this.from.setMonth(this.from.getMonth() - 1);
   }
 
@@ -55,14 +55,16 @@ export class DashboardComponent implements OnInit {
     const queryBuilder = new QueryBuilder(this.query);
     queryBuilder.pipe(dateBetweenQuery(this.from, this.to));
 
-    this.queryService.query(queryBuilder.filteredQuery, async (queryId, subscribeData) => {
+    this.queryService.query(queryBuilder.filteredQuery, (queryId, subscribeData) => {
       if (subscribeData.type === SubscribeTypes.Eof) {
-        const queryResult = await this.queryService.getResult(queryId, 100, 0);
-        this.records = queryResult.records;
-        this.count = queryResult.count;
-        this.gridData = new GridData({
-          records: this.records,
-          fieldTypes: queryResult.fieldTypes,
+        this.ngZone.run(async () => {
+          const queryResult = await this.queryService.getResult(queryId, 100, 0);
+          this.records = queryResult.records;
+          this.count = queryResult.count;
+          this.gridData = new GridData({
+            records: this.records,
+            fieldTypes: queryResult.fieldTypes,
+          });
         });
       }
     });
